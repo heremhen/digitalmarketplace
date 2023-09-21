@@ -1,0 +1,65 @@
+{% extends "./base.html" %} {% load static %} {% block content %}
+
+<div class="hero min-h-screen bg-base-200">
+  <div class="hero-content text-center">
+    <div class="flex flex-col min-w-full">
+      <!-- Introduction section -->
+
+      {% if not user.is_authenticated %}
+        <div class="grid rounded-box place-items-center h-96">
+          <section>
+            <h1 class="text-5xl font-bold">Hello there</h1>
+            <p class="py-6">
+              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+              excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
+              a id nisi.
+            </p>
+            <a href="{% url 'register' %}" class="btn btn-wide btn-primary">
+              Create an account
+            </a>
+          </section>
+        </div>
+      {% endif %}
+
+      <!-- All products section -->
+
+      <div class="grid place-items-center p-1 mt-20">
+        <div class="py-5 rounded-md bg-neutral-focus">
+          <div class="container">
+            <div class="pb-3">All products</div>
+
+            <hr />
+            <br />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6">
+              {% for product in my_products %}
+              <a href="{{product.get_absolute_url}}" class="product-link">
+                <div
+                  class="card shadow hover:bg-base-100/70 ease-in-out duration-300 border border-neutral p-5"
+                >
+                  <img
+                    class="mask mask-squircle object-cover h-96"
+                    alt="Responsive image"
+                    src="{{product.image.url}}"
+                  />
+
+                  <div class="card-body">
+                    <p class="text-info text-decoration-none">
+                      {{ product.title | capfirst }}
+                    </p>
+
+                    <div class="align-items-center">
+                      <h5>$ {{ product.price }}</h5>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+</div>

@@ -1,0 +1,33 @@
+{% extends "store/base.html" %} {% load static %} {% block content %}
+
+<div class="min-h-screen bg-base-200 pt-20">
+  <div class="card bg-base-100 shadow-md xl:w-1/4 sm:w-1/2 lg:1/3 m-auto p-5">
+    <div class="text-center">
+      <h3 class="text-3xl font-black">Account deletion</h3>
+
+      <div class="divider"></div>
+
+      <p>Are you sure that you want to delete your account?</p>
+
+      <br />
+
+      <form method="POST" autocomplete="off">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-error">
+          &nbsp; Delete your account
+        </button>
+
+        <a
+          class="btn btn-success"
+          type="button"
+          href="{% url 'profile-management' %}"
+        >
+          Go back
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+scripts:
+  dev: rundev.bat
+  i: pip install -r requirements.txt && cd plugins && npm install
+  premigrate: python manage.py makemigrations
+  migrate: python manage.py migrate
+  su: python manage.py createsuperuser
+  inspectdb: python manage.py inspectdb --database=postgres > models.py

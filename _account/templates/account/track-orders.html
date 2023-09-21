@@ -1,0 +1,31 @@
+{% extends "store/base.html" %} {% load static %} {% block content %}
+<div class="bg-base-200 min-h-screen py-20">
+  <div class="container w-1/3 mx-auto">
+    <h3 class="text-center text-xl font-bold">My orders</h3>
+    <p class="text-center">View all of your orders.</p>
+    <div class="divider"></div>
+  </div>
+  <div class="card overflow-x-auto bg-base-100 w-1/2 m-auto">
+    <table class="table table-xs">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th class="text-center">Quantity</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr class="hover hover:text-accent">
+          <th>{{ order.id }}</th>
+          <td>{{ order.product }}</td>
+          <td class="text-center">{{ order.quantity }}</td>
+          <td>{{ order.price }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

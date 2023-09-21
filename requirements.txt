@@ -1,0 +1,4 @@
+django==4.2.5
+rav==0.0.8
+python-decouple==3.8
+psycopg2-binary==2.9.7  # Optional

@@ -1,0 +1,50 @@
+{% extends "store/base.html" %} {% load static %} {% block content %}
+
+<div class="min-h-screen bg-base-200">
+  <div class="container mx-auto py-8 mt-14">
+    <h1 class="text-2xl font-bold mb-3 text-center">Manage shipping</h1>
+    <p class="text-base my-3 text-center">
+      Please fill in your shipping address.
+    </p>
+    <form
+      method="POST"
+      autocomplete="off"
+      class="w-full max-w-sm mx-auto p-8 rounded-md shadow-md bg-base-100"
+    >
+      {% csrf_token %}
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Full Name</label>
+        {{form.full_name}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Email</label>
+        {{form.email}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Address 1</label>
+        {{form.address1}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Address 2</label>
+        {{form.address2}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">City</label>
+        {{form.city}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">State</label>
+        {{form.state}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Zip code</label>
+        {{form.zipcode}}
+      </div>
+      <div class="divider"></div>
+      <button class="w-full btn btn-primary" type="submit">
+        Update shipping address
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

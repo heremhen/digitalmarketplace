@@ -1,0 +1,39 @@
+{% extends "store/base.html" %} {% load static %} {% block content %}
+
+<div class="min-h-screen bg-base-200 p-5 mt-14">
+  <div class="container mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-3 text-center">Profile management</h1>
+    <p class="text-base my-3 text-center">Manage your account effectively.</p>
+    <form
+      method="POST"
+      autocomplete="off"
+      class="w-full max-w-sm mx-auto p-8 rounded-md shadow-md bg-base-100"
+    >
+      {% csrf_token %}
+      <h1 class="text-lg font-bold">Update your account</h1>
+      <span>Feel free to make changes to your account.</span>
+      <div class="divider"></div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Username</label>
+        {{user_form.username}}
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-2">Email</label>
+        {{user_form.email}}
+      </div>
+      <div class="divider"></div>
+      <button class="w-full btn btn-primary" type="submit">
+        Update your account
+      </button>
+    </form>
+  </div>
+  <div class="w-full max-w-sm mx-auto p-8 rounded-md shadow-md bg-base-100">
+    <h1 class="text-lg font-bold">Delete your account</h1>
+    <span>Proceed if you wish to delete your account.</span>
+    <div class="divider"></div>
+    <a class="btn btn-error w-full" href="{% url 'delete-account' %}">
+      Delete your account
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% include "store/base.html" %} {% load static %} {% block content %}
+
+<div
+  class="w-full h-full bg-opacity-90 top-0 overflow-y-auto overflow-x-hidden fixed sticky-0"
+  id="chec-div"
+>
+  <div
+    class="w-full absolute z-10 right-0 h-full overflow-x-hidden transform translate-x-0 transition ease-in-out duration-700"
+    id="checkout"
+  >
+    <div class="flex items-end lg:flex-row flex-col justify-end" id="cart">
+      <!-- products -->
+      <div
+        class="w-full lg:px-8 lg:pt-24 md:px-6 px-4 md:py-8 py-4 pt-20 overflow-y-auto overflow-x-hidden lg:h-screen h-auto"
+        id="scroll"
+      >
+        <p class="text-3xl font-bold pb-5">Cart</p>
+        {% for item in cart %} {% with product=item.product %}
+        <div class="md:flex items-strech py-8 md:py-10 lg:py-8 border-t">
+          <!-- image -->
+          <div class="md:w-4/12 2xl:w-1/4 w-full">
+            <a href="{{product.get_absolute_url}}">
+              <img
+                src="{{product.image.url}}"
+                alt="Black Leather Bag"
+                class="h-full object-center object-cover md:block hidden hover:sepia ease-in-out duration-300"
+              />
+              <img
+                src="{{product.image.url}}"
+                alt="Black Leather Bag"
+                class="md:hidden w-full h-full object-center object-cover hover:sepia ease-in-out duration-300"
+              />
+            </a>
+          </div>
+          <!-- product details -->
+          <div class="md:pl-3 md:w-8/12 2xl:w-3/4 flex flex-col justify-center">
+            <p class="text-xs leading-3 md:pt-0 pt-4">Brand</p>
+            <div class="flex items-center justify-between w-full pt-1">
+              <a href="{{product.get_absolute_url}}" class="text-base font-black leading-none hover:underline hover:text-info">{{product.title}}</a>
+              <select id="select{{product.id}}" class="select select-bordered">
+                <option selected>{{item.qty}}</option>
+                <option value="">1</option>
+                <option value="">2</option>
+                <option value="">3</option>
+                <option value="">4</option>
+              </select>
+            </div>
+            <p class="text-xs leading-3 pt-2">Tags:</p>
+            <p class="text-xs leading-3 py-4">Description:</p>
+            <p class="w-96 text-xs leading-3">Composition:</p>
+            <div class="flex items-center justify-between pt-5">
+              <div class="flex itemms-center gap-2">
+                <button
+                  data-index="{{product.id}}"
+                  class="btn btn-outline btn-success btn-xs update-button"
+                >
+                  Update
+                </button>
+                <button
+                  data-index="{{product.id}}"
+                  class="btn btn-outline btn-error btn-xs delete-button"
+                >
+                  Remove
+                </button>
+              </div>
+              <p class="text-base font-black leading-none">
+                $ {{product.price}}
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endwith %} {% endfor %}
+      </div>
+      <!-- Checkout summary -->
+      <div class="lg:w-96 w-full h-full bg-base-200">
+        <div
+          class="flex flex-col lg:h-screen h-auto lg:px-8 md:px-7 px-4 lg:py-14 md:py-10 py-6 justify-between overflow-y-auto"
+        >
+          <div>
+            <p class="lg:pt-10 plg:text-4xl text-3xl font-black leading-9">
+              Summary
+            </p>
+          </div>
+          <div>
+            <div class="flex items-center pb-6 justify-between lg:pt-5 pt-20">
+              <p class="text-2xl leading-normal">Total</p>
+              <p class="text-2xl font-bold leading-normal text-right">
+                $ {{cart.get_total}}
+              </p>
+            </div>
+            <a
+              href="{% url 'checkout' %}"
+              class="btn lg:btn-wide w-full btn-outline"
+            >
+              Checkout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    /* width */
+    #scroll::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    /* Track */
+    #scroll::-webkit-scrollbar-track {
+      background: hsl(var(--b3));
+    }
+
+    /* Handle */
+    #scroll::-webkit-scrollbar-thumb {
+      background: hsl(var(--bc));
+    }
+  </style>
+</div>
+<script>
+  // Function to send AJAX request
+  function sendAjaxRequest(url, data, successCallback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          successCallback(response);
+        }
+      }
+    };
+
+    xhr.send(data);
+  }
+
+  // Delete button
+  document.addEventListener("DOMContentLoaded", function () {
+    var deleteButtons = document.querySelectorAll(".delete-button");
+
+    deleteButtons.forEach(function (button) {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        var productIndex = button.getAttribute("data-index");
+
+        var data = "product_id=" + productIndex + "&action=post";
+
+        sendAjaxRequest("{% url 'cart-delete' %}", data, function (json) {
+          location.reload();
+          document.getElementById("cart-qty").textContent = json.qty;
+          document.getElementById("total").textContent = json.total;
+        });
+      });
+    });
+  });
+
+  // Update button
+  document.addEventListener("DOMContentLoaded", function () {
+    var updateButtons = document.querySelectorAll(".update-button");
+
+    updateButtons.forEach(function (button) {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        var productIndex = button.getAttribute("data-index");
+        var selectElement = document.getElementById("select" + productIndex);
+        var productQuantity =
+          selectElement.options[selectElement.selectedIndex].text;
+
+        var data =
+          "product_id=" +
+          productIndex +
+          "&product_quantity=" +
+          productQuantity +
+          "&action=post";
+
+        sendAjaxRequest("{% url 'cart-update' %}", data, function (json) {
+          location.reload();
+          document.getElementById("cart-qty").textContent = json.qty;
+          document.getElementById("total").textContent = json.total;
+        });
+      });
+    });
+  });
+</script>
+
+{% endblock %}
