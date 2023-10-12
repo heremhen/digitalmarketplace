@@ -1,30 +1,31 @@
-{% extends "./base.html" %} {% load static %} {% block content %}
-
+{% extends "./base.html" %}
+{% load static %}
+{% block content %}
 <div class="hero min-h-screen bg-base-200">
   <div class="hero-content text-center">
     <div class="flex flex-col min-w-full">
       <!-- Introduction section -->
 
       {% if not user.is_authenticated %}
-        <div class="grid rounded-box place-items-center h-96">
-          <section>
-            <h1 class="text-5xl font-bold">Hello there</h1>
-            <p class="py-6">
-              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-              excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
-              a id nisi.
-            </p>
-            <a href="{% url 'register' %}" class="btn btn-wide btn-primary">
-              Create an account
-            </a>
-          </section>
-        </div>
+      <div class="grid rounded-box place-items-center h-96">
+        <section>
+          <h1 class="text-5xl font-bold">Hello there</h1>
+          <p class="py-6">
+            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
+            a id nisi.
+          </p>
+          <a href="{% url 'register' %}" class="btn btn-wide btn-primary">
+            Create an account
+          </a>
+        </section>
+      </div>
       {% endif %}
 
       <!-- All products section -->
 
       <div class="grid place-items-center p-1 mt-20">
-        <div class="py-5 rounded-md bg-neutral-focus">
+        <div class="py-5 rounded-md bg-neutral-focus space-y-5">
           <div class="container">
             <div class="pb-3">All products</div>
 
@@ -33,15 +34,10 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6">
               {% for product in my_products %}
-              <a href="{{product.get_absolute_url}}" class="product-link">
-                <div
-                  class="card shadow hover:bg-base-100/70 ease-in-out duration-300 border border-neutral p-5"
-                >
-                  <img
-                    class="mask mask-squircle object-cover h-96"
-                    alt="Responsive image"
-                    src="{{product.image.url}}"
-                  />
+              <a href="{{ product.get_absolute_url }}" class="product-link">
+                <div class="card shadow hover:bg-base-100/70 ease-in-out duration-300 border border-neutral p-5">
+                  <img class="mask mask-squircle object-cover h-96" alt="Responsive image"
+                    src="{{ product.image.url }}" />
 
                   <div class="card-body">
                     <p class="text-info text-decoration-none">
@@ -57,9 +53,59 @@
               {% endfor %}
             </div>
           </div>
+
+          <!-- Pagination controls -->
+          <div class="join">
+            {% if my_products.has_previous %}
+            <a href="?page=1">
+              <button class="join-item btn btn-sm">«</button>
+            </a>
+            <a href="?page={{ my_products.previous_page_number }}">
+              <button class="join-item btn btn-sm">previous</button>
+            </a>
+            {% endif %}
+
+            <!-- Show previous 3 pages -->
+            {% for i in my_products.paginator.page_range %}
+              {% if i >= my_products.number|add:"-3" and i < my_products.number %} 
+                <a href="?page={{ i }}">
+                  <button class="join-item btn btn-sm">{{ i }}</button>
+                </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if my_products.paginator.num_pages != 1 %}
+            <button class="join-item btn btn-disabled btn-sm">
+              {{ my_products.number }}
+            </button>
+            {% else %}
+            <button class="btn btn-disabled btn-sm">
+              Page {{ my_products.number }} of {{ my_products.paginator.num_pages}}
+            </button>
+            {% endif %}
+
+            <!-- Show next 3 pages -->
+            {% for i in my_products.paginator.page_range %}
+              {% if i > my_products.number and i <= my_products.number|add:"3" %} 
+                <a href="?page={{ i }}">
+                  <button class="join-item btn btn-sm">{{ i }}</button>
+                </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if my_products.has_next %}
+            <a href="?page={{ my_products.next_page_number }}">
+              <button class="join-item btn btn-sm">next</button>
+            </a>
+            <a href="?page={{ my_products.paginator.num_pages }}">
+              <button class="join-item btn btn-sm">»</button>
+            </a>
+            {% endif %}
+          </div>
+          <!-- End Pagination controls -->
         </div>
       </div>
     </div>
   </div>
-  {% endblock %}
 </div>
+{% endblock %}

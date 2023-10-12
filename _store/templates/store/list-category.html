@@ -6,26 +6,19 @@
       <!-- All products section -->
 
       <div class="grid place-items-center p-1 mt-20">
-        <div class="py-5 rounded-md bg-neutral-focus">
+        <div class="py-5 rounded-md bg-neutral-focus space-y-5">
           <div class="container">
             <div class="pb-3">{{category.name | capfirst }}</div>
 
             <hr />
             <br />
 
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6"
-            >
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6">
               {% if products %} {% for product in products %}
               <a href="{{product.get_absolute_url}}" class="product-link">
-                <div
-                  class="card shadow hover:bg-base-100/70 ease-in-out duration-300 border border-neutral p-5"
-                >
-                  <img
-                    class="mask mask-squircle object-cover h-96"
-                    alt="Responsive image"
-                    src="{{product.image.url}}"
-                  />
+                <div class="card shadow hover:bg-base-100/70 ease-in-out duration-300 border border-neutral p-5">
+                  <img class="mask mask-squircle object-cover h-96" alt="Responsive image"
+                    src="{{product.image.url}}" />
 
                   <div class="card-body">
                     <p class="text-info text-decoration-none">
@@ -43,6 +36,56 @@
               {% endif %}
             </div>
           </div>
+
+          <!-- Pagination controls -->
+          <div class="join">
+            {% if products.has_previous %}
+            <a href="?page=1">
+              <button class="join-item btn btn-sm">«</button>
+            </a>
+            <a href="?page={{ products.previous_page_number }}">
+              <button class="join-item btn btn-sm">previous</button>
+            </a>
+            {% endif %}
+            
+            <!-- Show previous 3 pages -->
+            {% for i in products.paginator.page_range %}
+              {% if i >= products.number|add:"-3" and i < products.number %} 
+                <a href="?page={{ i }}">
+                  <button class="join-item btn btn-sm">{{ i }}</button>
+                </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if products.paginator.num_pages != 1 %}
+            <button class="join-item btn btn-disabled btn-sm">
+              {{ products.number }}
+            </button>
+            {% else %}
+            <button class="btn btn-disabled btn-sm">
+              Page {{ products.number }} of {{ products.paginator.num_pages}}
+            </button>
+            {% endif %}
+
+            <!-- Show next 3 pages -->
+            {% for i in products.paginator.page_range %}
+              {% if i > products.number and i <= products.number|add:"3" %} 
+                <a href="?page={{ i }}">
+                  <button class="join-item btn btn-sm">{{ i }}</button>
+                </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}">
+              <button class="join-item btn btn-sm">next</button>
+            </a>
+            <a href="?page={{ products.paginator.num_pages }}">
+              <button class="join-item btn btn-sm">»</button>
+            </a>
+            {% endif %}
+          </div>
+          <!-- End Pagination controls -->
         </div>
       </div>
     </div>
