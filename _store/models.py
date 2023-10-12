@@ -26,6 +26,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     image = models.ImageField(upload_to="images/")
+    # stock = models.PositiveIntegerField()
 
     class Meta:
         verbose_name_plural = "products"
@@ -34,4 +35,4 @@ class Product(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("product-info", args=[self.slug])
+        return reverse("product-info", args=[self.category.slug, self.slug])

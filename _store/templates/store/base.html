@@ -31,7 +31,6 @@
             tabindex="0"
             class="dropdown-content z-[1] menu p-2 shadow bg-neutral rounded-box w-52 mt-1"
           >
-            <li><a href="{% url 'store' %}"> All </a></li>
             {% for category in all_categories %}
             <li>
               <a href="{{category.get_absolute_url}}">
