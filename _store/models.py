@@ -26,13 +26,14 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     stock = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "products"
 
     def __str__(self):
         return self.title
-    
+
     def deduct_stock(self, quantity):
         if self.stock is not None:
             if quantity > 0:
@@ -41,6 +42,7 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("product-info", args=[self.category.slug, self.slug])
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(

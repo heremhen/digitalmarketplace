@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 
 
 def store(request):
-    all_products = Product.objects.all()
+    all_products = Product.objects.all().order_by('-created_at')
     items_per_page = 9
     paginator = Paginator(all_products, items_per_page)
     page = request.GET.get("page")
@@ -31,7 +31,7 @@ def categories(request):
 
 def list_category(request, category_slug=None):
     category = get_object_or_404(Category, slug=category_slug)
-    all_products = Product.objects.filter(category=category)
+    all_products = Product.objects.filter(category=category).order_by('-created_at')
     items_per_page = 10
     paginator = Paginator(all_products, items_per_page)
     page = request.GET.get("page")
