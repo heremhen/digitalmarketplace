@@ -1,5 +1,5 @@
 from decimal import Decimal
-from _store.models import Product
+from _store.models import Product, ProductImage
 
 
 class Cart:
@@ -48,7 +48,10 @@ class Cart:
         cart = self.cart.copy()
 
         for product in products:
+            product_images = ProductImage.objects.filter(product=product)
+            images_list = [image.image.url for image in product_images]
             cart[str(product.id)]["product"] = product
+            cart[str(product.id)]["images"] = images_list
 
         for item in cart.values():
             item["price"] = Decimal(item["price"])

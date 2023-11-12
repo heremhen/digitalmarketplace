@@ -33,6 +33,10 @@ class Order(models.Model):
     def __str__(self):
         return "Order - #" + str(self.id)
 
+    def complete_order(self):
+        for item in self.order_items.all():
+            item.product.deduct_stock(item.quantity)
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)

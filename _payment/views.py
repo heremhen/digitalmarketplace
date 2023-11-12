@@ -23,7 +23,6 @@ def checkout(request):
 
 
 def complete_order(request):
-    print(request)
     if request.POST.get("action") == "post":
         name = request.POST.get("name")
         email = request.POST.get("email")
@@ -55,13 +54,16 @@ def complete_order(request):
             order_id = order.pk
 
             for item in cart:
+                product = item["product"]
+                quantity = item["qty"]
                 OrderItem.objects.create(
                     order_id=order_id,
-                    product=item["product"],
-                    quantity=item["qty"],
+                    product=product,
+                    quantity=quantity,
                     price=item["price"],
                     user=request.user,
                 )
+                product.deduct_stock(quantity)
         else:
             order = Order.objects.create(
                 full_name=name,
@@ -73,12 +75,15 @@ def complete_order(request):
             order_id = order.pk
 
             for item in cart:
+                product = item["product"]
+                quantity = item["qty"]
                 OrderItem.objects.create(
                     order_id=order_id,
-                    product=item["product"],
-                    quantity=item["qty"],
+                    product=product,
+                    quantity=quantity,
                     price=item["price"],
                 )
+                product.deduct_stock(quantity)
 
         order_success = True
         response = JsonResponse({"success": order_success})

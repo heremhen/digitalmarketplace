@@ -4,7 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("admin/", admin.site.urls),            # Admin url
+    path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
+    path('hideout/', admin.site.urls),           # Admin url
     path("", include("_store.urls")),            # Store app
     path("cart/", include("_cart.urls")),        # Cart app
     path("account/", include("_account.urls")),  # Account app

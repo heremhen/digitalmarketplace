@@ -1,65 +1,52 @@
 {% include "store/base.html" %} {% load static %} {% block content %}
 
-<div
-  class="w-full h-full bg-opacity-90 top-0 overflow-y-auto overflow-x-hidden fixed sticky-0"
-  id="chec-div"
->
+<div class="w-full h-full bg-opacity-90 top-0 overflow-y-auto overflow-x-hidden fixed sticky-0" id="chec-div">
   <div
     class="w-full absolute z-10 right-0 h-full overflow-x-hidden transform translate-x-0 transition ease-in-out duration-700"
-    id="checkout"
-  >
+    id="checkout">
     <div class="flex items-end lg:flex-row flex-col justify-end" id="cart">
       <!-- products -->
       <div
         class="w-full lg:px-8 lg:pt-24 md:px-6 px-4 md:py-8 py-4 pt-20 overflow-y-auto overflow-x-hidden lg:h-screen h-auto"
-        id="scroll"
-      >
-        <p class="text-3xl font-bold pb-5">Cart</p>
+        id="scroll">
+        <div class="flex justify-between">
+          <p class="text-3xl font-bold pb-5">Cart</p>
+          <button id="empty-cart" class="btn btn-outline btn-xs btn-warning">Empty Cart</button>
+        </div>
         {% for item in cart %} {% with product=item.product %}
         <div class="md:flex items-strech py-8 md:py-10 lg:py-8 border-t">
           <!-- image -->
           <div class="md:w-4/12 2xl:w-1/4 w-full">
             <a href="{{product.get_absolute_url}}">
-              <img
-                src="{{product.image.url}}"
-                alt="Black Leather Bag"
-                class="h-full object-center object-cover md:block hidden hover:sepia ease-in-out duration-300"
-              />
-              <img
-                src="{{product.image.url}}"
-                alt="Black Leather Bag"
-                class="md:hidden w-full h-full object-center object-cover hover:sepia ease-in-out duration-300"
-              />
+              <img src="{{item.images.0}}" alt="Black Leather Bag"
+                class="h-full object-center object-cover md:block hidden hover:sepia ease-in-out duration-300" />
+              <img src="{{item.images.0}}" alt="Black Leather Bag"
+                class="md:hidden w-full h-full object-center object-cover hover:sepia ease-in-out duration-300" />
             </a>
           </div>
           <!-- product details -->
           <div class="md:pl-3 md:w-8/12 2xl:w-3/4 flex flex-col justify-center">
             <p class="text-xs leading-3 md:pt-0 pt-4">Brand</p>
             <div class="flex items-center justify-between w-full pt-1">
-              <a href="{{product.get_absolute_url}}" class="text-base font-black leading-none hover:underline hover:text-info">{{product.title}}</a>
-              <select id="select{{product.id}}" class="select select-bordered">
-                <option selected>{{item.qty}}</option>
-                <option value="">1</option>
-                <option value="">2</option>
-                <option value="">3</option>
-                <option value="">4</option>
-              </select>
+              <a href="{{product.get_absolute_url}}"
+                class="text-base font-black leading-none hover:underline hover:text-info">{{product.title}}</a>
+              <div id="stock-qty" class="join">
+                <button id="minus{{product.id}}" class="btn btn-sm btn-active join-item">-</button>
+                <input id="quantity-input{{product.id}}" type="number" placeholder="Qty"
+                  class="input input-sm w-20 join-item bg-base-200 input-disabled" disabled min="1" value="{{item.qty}}" />
+                <button id="plus{{product.id}}" class="btn btn-sm btn-active join-item">+</button>
+              </div>
             </div>
             <p class="text-xs leading-3 pt-2">Tags:</p>
             <p class="text-xs leading-3 py-4">Description:</p>
             <p class="w-96 text-xs leading-3">Composition:</p>
             <div class="flex items-center justify-between pt-5">
               <div class="flex itemms-center gap-2">
-                <button
-                  data-index="{{product.id}}"
-                  class="btn btn-outline btn-success btn-xs update-button"
-                >
-                  Update
+                <button data-index="{{product.id}}"
+                  class="btn btn-outline btn-success btn-xs wishlist-button btn-disabled">
+                  Add to wishlist
                 </button>
-                <button
-                  data-index="{{product.id}}"
-                  class="btn btn-outline btn-error btn-xs delete-button"
-                >
+                <button data-index="{{product.id}}" class="btn btn-outline btn-error btn-xs delete-button">
                   Remove
                 </button>
               </div>
@@ -74,8 +61,7 @@
       <!-- Checkout summary -->
       <div class="lg:w-96 w-full h-full bg-base-200">
         <div
-          class="flex flex-col lg:h-screen h-auto lg:px-8 md:px-7 px-4 lg:py-14 md:py-10 py-6 justify-between overflow-y-auto"
-        >
+          class="flex flex-col lg:h-screen h-auto lg:px-8 md:px-7 px-4 lg:py-14 md:py-10 py-6 justify-between overflow-y-auto">
           <div>
             <p class="lg:pt-10 plg:text-4xl text-3xl font-black leading-9">
               Summary
@@ -88,12 +74,15 @@
                 $ {{cart.get_total}}
               </p>
             </div>
-            <a
-              href="{% url 'checkout' %}"
-              class="btn lg:btn-wide w-full btn-outline"
-            >
+            {% if cart|length == 0 %}
+            <a href="{% url 'checkout' %}" class="btn lg:btn-wide w-full btn-outline btn-disabled">
               Checkout
             </a>
+            {% else %}
+            <a href="{% url 'checkout' %}" class="btn lg:btn-wide w-full btn-outline">
+              Checkout
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -157,34 +146,58 @@
     });
   });
 
-  // Update button
+  // Quantity changer
   document.addEventListener("DOMContentLoaded", function () {
-    var updateButtons = document.querySelectorAll(".update-button");
+    var quantityInputs = document.querySelectorAll("[id^='quantity-input']");
 
-    updateButtons.forEach(function (button) {
-      button.addEventListener("click", function (e) {
-        e.preventDefault();
-
-        var productIndex = button.getAttribute("data-index");
-        var selectElement = document.getElementById("select" + productIndex);
-        var productQuantity =
-          selectElement.options[selectElement.selectedIndex].text;
-
-        var data =
-          "product_id=" +
-          productIndex +
-          "&product_quantity=" +
-          productQuantity +
-          "&action=post";
-
-        sendAjaxRequest("{% url 'cart-update' %}", data, function (json) {
-          location.reload();
-          document.getElementById("cart-qty").textContent = json.qty;
-          document.getElementById("total").textContent = json.total;
-        });
+    quantityInputs.forEach(function (input) {
+      input.addEventListener("input", function () {
+        var productId = input.id.replace("quantity-input", "");
+        var quantityInput = document.getElementById("quantity-input" + productId);
+        var currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue < 1) {
+          quantityInput.value = "1";
+        } else {
+          updateQuantity(productId, currentValue);
+        }
       });
     });
+
+    var plusButtons = document.querySelectorAll("[id^='plus']");
+    var minusButtons = document.querySelectorAll("[id^='minus']");
+
+    plusButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var productId = button.id.replace("plus", "");
+        var quantityInput = document.getElementById("quantity-input" + productId);
+        var currentValue = parseInt(quantityInput.value) || 1;
+        quantityInput.value = (currentValue + 1).toString();
+        updateQuantity(productId, currentValue + 1);
+      });
+    });
+
+    minusButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var productId = button.id.replace("minus", "");
+        var quantityInput = document.getElementById("quantity-input" + productId);
+        var currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue > 1) {
+          quantityInput.value = (currentValue - 1).toString();
+          updateQuantity(productId, currentValue - 1);
+        }
+      });
+    });
+
+    function updateQuantity(productId, newQuantity) {
+      var data = "product_id=" + productId + "&product_quantity=" + newQuantity + "&action=post";
+      sendAjaxRequest("{% url 'cart-update' %}", data, function (json) {
+        location.reload();
+        document.getElementById("cart-qty").textContent = json.qty;
+        document.getElementById("total").textContent = json.total;
+      });
+    }
   });
+
 </script>
 
 {% endblock %}

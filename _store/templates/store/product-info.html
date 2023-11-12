@@ -1,34 +1,25 @@
-{% extends "./base.html" %} {% load static %} {% block content %}
-
+{% extends "./base.html" %}
+{% load static %}
+{% block content %}
 <div class="md:flex items-start justify-center py-12 2xl:px-20 md:px-6 px-4 lg:mt-10 bg-base-200 lg:min-h-screen">
-  <div class="xl:w-2/6 lg:w-2/5 w-80 md:block hidden">
-    <img
-      class="w-full"
-      alt="image of a girl posing"
-      src="{{ product.image.url }}"
-    />
-  </div>
-  <div class="md:hidden">
-    <img
-      class="w-full"
-      alt="image of a girl posing"
-      src="{{ product.image.url }}"
-    />
+  {{product_images.}}
+  <div class="xl:w-2/6 lg:w-2/5 w-80 carousel rounded-box">
+    {% for image in product_images %}
+    <div class="carousel-item w-full">
+      <img src="{{ image.image.url }}" class="rounded-box" />
+    </div>
+    {% endfor %}
   </div>
   <div class="xl:w-2/5 md:w-1/2 lg:ml-8 md:ml-6 md:mt-0 mt-6">
     <div class="border-b border-gray-200 pb-6">
       <p class="text-sm leading-none text-gray-600 dark:text-gray-300">
         {{ product.title }}
       </p>
-      <h1
-        class="lg:text-2xl text-xl font-semibold lg:leading-6 leading-7 text-gray-800 dark:text-white mt-2"
-      >
+      <h1 class="lg:text-2xl text-xl font-semibold lg:leading-6 leading-7 text-gray-800 dark:text-white mt-2">
         {{ product.title }}
       </h1>
     </div>
-    <div
-      class="py-4 border-b border-gray-200 flex items-center justify-between"
-    >
+    <div class="py-4 border-b border-gray-200 flex items-center justify-between">
       <p class="text-base leading-4 text-gray-800 dark:text-gray-300">Brand</p>
       <div class="flex items-center justify-center">
         <p class="text-sm leading-none text-gray-600 dark:text-gray-300">
@@ -36,13 +27,23 @@
         </p>
       </div>
     </div>
-    <div
-      class="py-4 border-b border-gray-200 flex items-center justify-between"
-    >
+    <div class="py-4 border-b border-gray-200 flex items-center justify-between">
       <p class="text-base leading-4 text-gray-800 dark:text-gray-300">Price</p>
       <div class="flex items-center justify-center">
         <p class="text-sm leading-none text-gray-600 dark:text-gray-300 mr-3">
           $ {{ product.price }}
+        </p>
+      </div>
+    </div>
+    <div class="py-4 border-b border-gray-200 flex items-center justify-between">
+      <p class="text-base leading-4 text-gray-800 dark:text-gray-300">In stock</p>
+      <div class="flex items-center justify-center">
+        <p class="text-sm leading-none text-gray-600 dark:text-gray-300 mr-3">
+          {% if product.stock is None %}
+          Unlimited
+          {% else %}
+          {{ product.stock }}
+          {% endif %}
         </p>
       </div>
     </div>
@@ -53,13 +54,12 @@
             {{ product.description }}
           </p>
           <div class="h-full justify-end">
-            <label for="select">Qty</label>
-            <select id="select" class="select select-bordered select-sm">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
+            <div id="stock-qty" class="join">
+              <button id="minus" class="btn btn-sm btn-active join-item">-</button>
+              <input id="quantity-input" type="number" placeholder="Qty"
+                class="input input-sm w-20 join-item input-disabled" disabled min="1" max="{{product.stock}}" value="" />
+              <button id="plus" class="btn btn-sm btn-active join-item">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -75,41 +75,73 @@
   document.addEventListener("click", function (e) {
     if (e.target && e.target.id === "add-button") {
       e.preventDefault();
+      var inputField = document.getElementById("quantity-input");
+      var currentValue = parseInt(inputField.value);
+      var maxStock = parseInt("{{ product.stock }}");
+      if (isNaN(maxStock)) {
+        maxStock = Infinity;
+      }
 
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", '{% url "cart-add" %}', true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      if (isNaN(currentValue) || currentValue < 1 || currentValue > maxStock) {
+        alert("Invalid quantity. Please enter a valid quantity.");
+      } else {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", '{% url "cart-add" %}', true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-      var product_id = document.getElementById("add-button").value;
-      var product_quantity = document.querySelector(
-        "#select option:checked"
-      ).textContent;
-      var csrfmiddlewaretoken = "{{csrf_token}}";
+        var product_id = document.getElementById("add-button").value;
+        var product_quantity = inputField.value;
+        var csrfmiddlewaretoken = "{{csrf_token}}";
 
-      var data =
-        "product_id=" +
-        encodeURIComponent(product_id) +
-        "&product_quantity=" +
-        encodeURIComponent(product_quantity) +
-        "&csrfmiddlewaretoken=" +
-        encodeURIComponent(csrfmiddlewaretoken) +
-        "&action=post";
+        var data =
+          "product_id=" +
+          encodeURIComponent(product_id) +
+          "&product_quantity=" +
+          encodeURIComponent(product_quantity) +
+          "&csrfmiddlewaretoken=" +
+          encodeURIComponent(csrfmiddlewaretoken) +
+          "&action=post";
 
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          var response = JSON.parse(xhr.responseText);
-          document.getElementById("cart-qty").textContent = response.qty;
-          document.getElementById("cart-body-qty").textContent = response.qty;
-          document.getElementById("total").textContent = response.total;
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            document.getElementById("cart-qty").textContent = response.qty;
+            document.getElementById("cart-body-qty").textContent = response.qty;
+            document.getElementById("total").textContent = response.total;
+          }
+        };
+
+        xhr.onerror = function (xhr, errmsg, err) {
+          console.log("wtf", errmsg);
+        };
+
+        xhr.send(data);
+      }
+    } else if (e.target && (e.target.id === "minus" || e.target.id === "plus")) {
+      var inputField = document.getElementById("quantity-input");
+      if (inputField.value === "") {
+        inputField.value = "1";
+      }
+      var currentValue = parseInt(inputField.value);
+
+      var maxStock = parseInt("{{ product.stock }}");
+
+      if (isNaN(maxStock)) {
+        maxStock = Infinity;
+      }
+
+      if (e.target.id === "minus") {
+        if (currentValue > 1) {
+          inputField.value = currentValue - 1;
         }
-      };
-
-      xhr.onerror = function (xhr, errmsg, err) {
-        console.log("wtf", errmsg);
-      };
-
-      xhr.send(data);
+      } else if (e.target.id === "plus") {
+        if (currentValue < maxStock) {
+          inputField.value = currentValue + 1;
+        }
+      }
+      inputField.placeholder = "";
     }
   });
 </script>
+
 {% endblock %}

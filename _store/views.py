@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 
 def store(request):
     all_products = Product.objects.all()
-    items_per_page = 3
+    items_per_page = 9
     paginator = Paginator(all_products, items_per_page)
     page = request.GET.get("page")
 
@@ -54,5 +54,10 @@ def list_category(request, category_slug=None):
 def product_info(request, category_slug=None, product_slug=None):
     category = get_object_or_404(Category, slug=category_slug)
     product = get_object_or_404(Product, slug=product_slug, category=category)
-    context = {"category": category, "product": product}
+    product_images = product.images.all()
+    context = {
+        "category": category,
+        "product": product,
+        "product_images": product_images,
+    }
     return render(request, "store/product-info.html", context)
