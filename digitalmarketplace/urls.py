@@ -10,7 +10,7 @@ urlpatterns = [
     path("cart/", include("_cart.urls")),        # Cart app
     path("account/", include("_account.urls")),  # Account app
     path("payment/", include("_payment.urls")),  # Payment app
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

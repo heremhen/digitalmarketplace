@@ -9,16 +9,17 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from .forms import CreateUserForm, LoginForm, UpdateUserForm
+from .forms import CreateUserForm, LoginForm, UpdateUserForm, UserProfileForm
 from _payment.forms import ShippingForm
 from _payment.models import ShippingAddress
 from _payment.models import Order, OrderItem
 from .token import user_tokenizer_generate
+from .models import UserProfile
 
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('/')
+        return redirect("/")
     form = CreateUserForm()
 
     if request.method == "POST":
@@ -26,6 +27,7 @@ def register(request):
 
         if form.is_valid():
             user = form.save()
+            UserProfile.objects.create(user=user)
             user.is_active = False
             user.save()
 
@@ -73,7 +75,7 @@ def email_verification_failed(request):
 
 def my_login(request):
     if request.user.is_authenticated:
-        return redirect('/')
+        return redirect("/")
     form = LoginForm()
 
     if request.method == "POST":
@@ -117,16 +119,24 @@ def dashboard(request):
 @login_required(login_url="my-login")
 def profile_management(request):
     user_form = UpdateUserForm(instance=request.user)
+    try:
+        profile_form = UserProfileForm(instance=request.user.userprofile)
+    except User.userprofile.RelatedObjectDoesNotExist:
+        profile_form = UserProfileForm()
 
     if request.method == "POST":
         user_form = UpdateUserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(
+            request.POST, request.FILES, instance=request.user.userprofile
+        )
 
-        if user_form.is_valid():
+        if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
+            profile_form.save()
             messages.info(request, "Update success!")
             return redirect("dashboard")
 
-    context = {"user_form": user_form}
+    context = {"user_form": user_form, "profile_form": profile_form}
 
     return render(request, "account/profile-management.html", context=context)
 

@@ -2,6 +2,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms.widgets import PasswordInput, TextInput
+from .models import UserProfile
 
 
 class CreateUserForm(UserCreationForm):  # Registration form
@@ -77,7 +78,7 @@ class UpdateUserForm(forms.ModelForm):  # Update form
                     "type": "text",
                     "placeholder": "email",
                 }
-            )
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -95,3 +96,9 @@ class UpdateUserForm(forms.ModelForm):  # Update form
             raise forms.ValidationError("Your email is too long")
 
         return email
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ["avatar"]

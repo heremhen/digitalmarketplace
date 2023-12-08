@@ -4,11 +4,8 @@
   <div class="container mx-auto py-8">
     <h1 class="text-2xl font-bold mb-3 text-center">Profile management</h1>
     <p class="text-base my-3 text-center">Manage your account effectively.</p>
-    <form
-      method="POST"
-      autocomplete="off"
-      class="w-full max-w-sm mx-auto p-8 rounded-md shadow-md bg-base-100"
-    >
+    <form method="POST" autocomplete="off" enctype="multipart/form-data"
+      class="w-full max-w-sm mx-auto p-8 rounded-md shadow-md bg-base-100">
       {% csrf_token %}
       <h1 class="text-lg font-bold">Update your account</h1>
       <span>Feel free to make changes to your account.</span>
@@ -21,6 +18,7 @@
         <label class="block text-sm font-bold mb-2">Email</label>
         {{user_form.email}}
       </div>
+      {{ profile_form }}
       <div class="divider"></div>
       <button class="w-full btn btn-primary" type="submit">
         Update your account
