@@ -17,14 +17,14 @@
       <a href="{% url 'store' %}" class="btn btn-ghost normal-case text-xl">digitalMarketplace</a>
       <div class="dropdown">
         <label tabindex="0"
-          class="btn btn-ghost btn-sm font-bold text-base cursor-pointer hover:text-primary/50">Cateogories<svg
+          class="btn btn-ghost btn-sm font-bold text-base cursor-pointer hover:text-primary/50">Categories<svg
             width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 6H11L7.5 10.5L4 6Z" fill="currentColor"></path>
           </svg></label>
         <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-neutral rounded-box w-52 mt-1">
           {% for category in all_categories %}
           <li>
-            <a href="{{category.get_absolute_url}}">
+            <a class="hover:bg-base-200" href="{{category.get_absolute_url}}">
               {{ category.name | capfirst }}
             </a>
           </li>
